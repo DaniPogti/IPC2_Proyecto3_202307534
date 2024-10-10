@@ -78,3 +78,6 @@ def Procesar():
 @app.route('/Grafica', methods=['GET'])
 def Graficar():
     pass
+
+#if __name__ == '__main__':
+    #app.run(debug=True)
