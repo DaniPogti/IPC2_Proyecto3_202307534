@@ -95,12 +95,29 @@
 
         {% block contenido %}
         <header>
-            <h1>Maquina de Ensamblajes</h1>
+            <h1>Cargar Archivos</h1>
             <div class="input-group mb-3">
-              <form action="/LeerXml" method="POST" enctype="multipart/form-data">
+              <form action="{% url 'mostrar' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
                 <input type="file" class="form-control" id="inputGroupFile01" name="archivo">
                 <button type="submit" class="btn btn-primary" style="color: rgb(255, 255, 255); background: rgb(168, 165, 165); display: flex">Subir</button>
               </form>
+
+              {% if ContenidoXml %}
+              <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml">{{ ContenidoXml }}
+              </textarea>
+              
+              <!-- HIDDEN -->
+              <form enctype="multipart/form-data" method="POST" action="{% url 'subirXML' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="xml" value="{{ xml_content|escape }}" />
+                  <button type="submit" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                      Subir Archivo
+                  </button>
+              </form>
+              {% else %}
+              <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml"></textarea>
+              {% endif %}
             </div> 
         </header>
         <main>
@@ -112,33 +129,7 @@
                 <h4 class="list-group-item list-group-item-info">Cantidad de Componentes n</h4>
                 <h4 class="list-group-item list-group-item-info">Tiempo de Ensamblaje n</h4>
             </section>
-            <section>
-              <h3>Listado de Productos</h3>
-                <ul class="list-group">
-                  <li class="list-group-item list-group-item-primary">Producto 1</li>
-                  <ul class="list-group">
-                    <li class="list-group-item">Elaboracion 1</li>
-                  </ul>
-                  <li class="list-group-item list-group-item-primary">Producto 2</li>
-                    <ul class="list-group">
-                      <li class="list-group-item">Elaboracion 2</li>
-                    </ul>
-                  <li class="list-group-item list-group-item-primary">Producto n</li>
-                    <ul class="list-group">
-                      <li class="list-group-item">Elaboracion n</li>
-                    </ul>
-                </ul>
-            </section>
           </div>
-          <div class="container">
-            <form id="searchMachineForm" action="/buscar_maquina" method="POST">
-                <div class="mb-3">
-                    <label for="nomMaquina" class="form-label">Buscar Máquina</label>
-                    <input type="text" class="form-control" id="nombreMaquina" name="nombreMaquina" placeholder="Ingrese el nombre de la máquina">
-                </div>
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </form>
-        </div>
         </main>
         {% endblock %}
     </body>
