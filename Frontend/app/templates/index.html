@@ -96,31 +96,34 @@
         {% block contenido %}
         <header>
             <h1>Cargar Archivos</h1>
-            <div class="input-group mb-3">
-              <form action="{% url 'mostrar' %}" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="file" class="form-control" id="inputGroupFile01" name="archivo">
-                <button type="submit" class="btn btn-primary" style="color: rgb(255, 255, 255); background: rgb(168, 165, 165); display: flex">Subir</button>
-              </form>
-
-              {% if ContenidoXml %}
-              <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml">{{ ContenidoXml }}
-              </textarea>
-              
-              <!-- HIDDEN -->
-              <form enctype="multipart/form-data" method="POST" action="{% url 'subirXML' %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="xml" value="{{ xml_content|escape }}" />
-                  <button type="submit" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                      Subir Archivo
-                  </button>
-              </form>
-              {% else %}
-              <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml"></textarea>
-              {% endif %}
-            </div> 
         </header>
         <main>
+          <div class="input-group mb-3">
+            <form action="{% url 'mostrar' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="file" id="archivo" name="archivo" accept="text/xml" class="form-control" required>
+              <button type="submit" class="btn btn-primary" style="color: rgb(255, 255, 255); background: rgb(168, 165, 165); display: flex">
+                Cargar Archivo XML
+              </button>
+            </form>
+
+            {% if ContenidoXml %}
+            <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml">
+              {{ ContenidoXml }}
+            </textarea>
+            
+            <!-- HIDDEN -->
+            <form enctype="multipart/form-data" method="POST" action="{% url 'subirXML' %}">
+                {% csrf_token %}
+                <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
+                <button type="submit" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    Subir Archivo
+                </button>
+            </form>
+            {% else %}
+            <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml"></textarea>
+            {% endif %}
+          </div> 
           <div class="contenedor">
             <section>
               <h3>Informacion de la Maquina</h3>

@@ -207,34 +207,5 @@ def Procesar():
 def Graficar():
     pass
 
-@app.route('/ContarMensajesPositivos', methods=['GET']) #modificar mas tarde
-def ContarMensajesPositivos():
-    try:
-        count = 0
-        for mensaje in Mensajes:
-            for palabra in Positivos:
-                if palabra in mensaje:
-                    count += 1
-                    break  # Evita contar el mismo mensaje varias veces si contiene múltiples palabras positivas
-        return jsonify({"mensajes_positivos": count})
-    except Exception as e:
-        return str(e)
-    
-    
-@app.route('/LimpiarMatrices', methods=['POST'])
-def LimpiarMatrices():
-    try:
-        Clasificaciones.clear()
-        Diccionarios.clear()
-        Positivos.clear()
-        Negativos.clear()
-        Empresas.clear()
-        Servicios.clear()
-        Alias.clear()
-        Mensajes.clear()
-        return jsonify({"status": "success", "message": "Matrices limpiadas correctamente"})
-    except Exception as e:
-        return str(e)
-
 if __name__ == '__main__':
     app.run(debug=True)

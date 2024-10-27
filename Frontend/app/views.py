@@ -11,13 +11,15 @@ def index(request):
 def mostrar(request):
     ContenidoXml = ""
     
-    if request.method == 'POST':
-        form = FileForms(request.POST, request.FILES)
-        
-        if form.is_valid():
-            file = form.cleaned_data['file']
-            ContenidoXml = file.read().decode('utf-8')
-        else:
-            print(form.errors)
     return render(request, 'index.html', {'ContenidoXml': ContenidoXml})
+
+def subirXML(request):
+    ContenidoXml = ""
+    
+    if request.method == 'POST':
+        ContenidoXml = request.POST['archivo']
+        print(ContenidoXml)
+        
+    return render(request, 'index.html', {'ContenidoXml': ContenidoXml})   
+    
  
