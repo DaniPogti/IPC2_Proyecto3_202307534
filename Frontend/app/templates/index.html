@@ -98,28 +98,38 @@
             <h1>Cargar Archivos</h1>
         </header>
         <main>
-          <div class="input-group mb-3">
-            <form action="{% url 'mostrar' %}" method="POST" enctype="multipart/form-data">
+          <div class="input-group mb-3" style="display: flex; flex-direction: column; align-items: stretch;">
+            <form action="{% url 'leerArchivoXML' %}" method="POST" enctype="multipart/form-data">
               {% csrf_token %}
-              <input type="file" id="archivo" name="archivo" accept="text/xml" class="form-control" required>
+              <input type="file" id="archivo" name="archivo" accept="text/xml" class="form-control">
               <button type="submit" class="btn btn-primary" style="color: rgb(255, 255, 255); background: rgb(168, 165, 165); display: flex">
-                Cargar Archivo XML
+                  Cargar Archivo XML
               </button>
-            </form>
+          </form>
 
-            {% if ContenidoXml %}
-            <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml">
-              {{ ContenidoXml }}
-            </textarea>
+          {% if ContenidoXml %}
+          <div style="display: flex; gap: 10px; justify-content: space-between;">
+              <h1>Entrada</h1>
+              <h1>Salida</h1>
+          </div>
+          <div class="textarea-container" style="display: flex; gap: 10px;">
+              <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Textito textoso" style="flex: 1;">
+                {{ ContenidoXml }}
+              </textarea>
+              <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="mensaje" id="mensaje" placeholder="Textito textoso" style="flex: 1;">
+                {{ mensaje }}
+              </textarea>
+          </div>
+
             
             <!-- HIDDEN -->
             <form enctype="multipart/form-data" method="POST" action="{% url 'subirXML' %}">
-                {% csrf_token %}
-                <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
-                <button type="submit" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                    Subir Archivo
-                </button>
-            </form>
+              {% csrf_token %}
+              <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
+              <button type="submit" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                  Subir Archivo
+              </button>
+          </form>
             {% else %}
             <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml"></textarea>
             {% endif %}

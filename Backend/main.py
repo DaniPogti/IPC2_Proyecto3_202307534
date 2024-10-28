@@ -66,7 +66,7 @@ def mostrar():
         #doc = minidom
         #doc = minidom.parse(archivo)
 
-@app.route('/LeerXml', methods=['POST'])
+@app.route('/LeerXML', methods=['POST'])#para thunder client
 def LeerXml():
     try:
         xml_content = request.data.decode('utf-8')
@@ -144,6 +144,20 @@ def LeerXml():
     
     except Exception as e:
         return str(e)
+
+@app.route('/LeerXml', methods=['POST'])#para backend
+def LeerArchivo():
+    try:
+        xml_content = request.form['xml']
+        doc = minidom.parseString(xml_content)
+        root = doc.documentElement
+        
+        # Procesar el contenido del archivo XML aquí
+        print(xml_content)
+        return "Archivo procesado correctamente", 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return "Error al procesar el archivo", 500
 
 @app.route('/ConsultarDatos', methods=['GET'])
 def ConsultarD():
