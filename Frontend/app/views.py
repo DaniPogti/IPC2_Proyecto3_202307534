@@ -25,6 +25,7 @@ def leerArchivoXML(request):
             print(form.errors)
     
     return render(request, 'index.html', {'ContenidoXml': ContenidoXml})
+
 def subirXML(request):
     ContenidoXml = ""
     mensaje = ""
@@ -34,17 +35,11 @@ def subirXML(request):
         
         limpiarXML = ContenidoXml.encode('utf-8')
         
-        try:
-            response = requests.post(api + '/LeerXML', data={'xml': ContenidoXml})  # comunica con backend
-            if response.status_code == 200:
-                mensaje = "Archivo enviado correctamente"
-                print("Archivo enviado correctamente")
-                print(ContenidoXml)
-            else:
-                mensaje = "Error al enviar el archivo"
-                print("Error al enviar el archivo")
-        except requests.ConnectionError as e:
-            mensaje = f"Error de conexión: {e}"
-            print(f"Error de conexión: {e}")
+        response = requests.post(api + '/LeerXML', data=limpiarXML)
+        
+        if response.status_code == 200:
+            mensaje = "Datos enviados correctamente. Respuesta del servidor: " + response.text
+        else:
+            mensaje = f"Error al enviar los datos. Código de estado: {response.status_code} - {response.reason}"
     
     return render(request, 'index.html', {'ContenidoXml': ContenidoXml, 'mensaje': mensaje})

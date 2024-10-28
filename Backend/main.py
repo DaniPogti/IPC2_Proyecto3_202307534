@@ -66,8 +66,8 @@ def mostrar():
         #doc = minidom
         #doc = minidom.parse(archivo)
 
-@app.route('/LeerXML', methods=['POST'])#para thunder client
-def LeerXml():
+@app.route('/LeerXML1', methods=['POST'])#para thunder client
+def LeerXml1():
     try:
         xml_content = request.data.decode('utf-8')
         doc = minidom.parseString(xml_content)
@@ -145,15 +145,18 @@ def LeerXml():
     except Exception as e:
         return str(e)
 
-@app.route('/LeerXml', methods=['POST'])#para backend
-def LeerArchivo():
+#para backend
+@app.route('/LeerXML', methods=['POST'])
+def LeerXml():
     try:
-        xml_content = request.form['xml']
-        doc = minidom.parseString(xml_content)
-        root = doc.documentElement
+        xml_content = request.data.decode('utf-8')
+        print("Contenido XML recibido:", xml_content)
+        data = minidom.parseString(xml_content)
+        root = data.documentElement
         
         # Procesar el contenido del archivo XML aquí
         print(xml_content)
+        print(root)
         return "Archivo procesado correctamente", 200
     except Exception as e:
         print(f"Error: {e}")
@@ -222,4 +225,4 @@ def Graficar():
     pass
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='127.0.0.1', port=5000)
