@@ -1,12 +1,9 @@
 from flask import Flask, render_template, request, Response, url_for, redirect
-#from flask_cors import CORS
 from xml.dom import minidom
 from xml.dom.minidom import Document
 import re
 
 app = Flask(__name__)
-
-#CORS(app)
 
 Clasificaciones = []
 Diccionarios = []
@@ -63,15 +60,6 @@ def extract_dates(messages):
             dates.append(match.group())
     return dates
 
-def count_messages_by_date(dates):
-    date_counts = {}
-    for date in dates:
-        if date in date_counts:
-            date_counts[date] += 1
-        else:
-            date_counts[date] = 1
-    return date_counts
-
 def classify_message(message):
     positive_count = sum(word in message for word in Positivos)
     negative_count = sum(word in message for word in Negativos)
@@ -97,16 +85,32 @@ def count_message_types_by_date(messages, dates):
             message_types_by_date[date][message_type] += 1
     return message_types_by_date
 
-def dict_to_xml(message_types_by_date):
+def count_company_mentions(messages):
+    company_mentions = {company.nombre: {'total': 0, 'positivos': 0, 'negativos': 0, 'neutros': 0} for company in Empresas}
+    for message in messages:
+        message_type = classify_message(message)
+        for company in Empresas:
+            if company.nombre in message:
+                company_mentions[company.nombre]['total'] += 1
+                if message_type == 'neutros':
+                    if company_mentions[company.nombre]['neutros'] == 0:
+                        company_mentions[company.nombre]['neutros'] = 1
+                else:
+                    company_mentions[company.nombre][message_type] += 1
+    return company_mentions
+
+def dict_to_xml(message_types_by_date, company_mentions):
     doc = Document()
-    root = doc.createElement('respuesta')
+    root = doc.createElement('lista_respuestas')
     doc.appendChild(root)
     
     for date, counts in message_types_by_date.items():
+        respuesta_element = doc.createElement('respuesta')
+        
         date_element = doc.createElement('fecha')
         date_text = doc.createTextNode(date)
         date_element.appendChild(date_text)
-        root.appendChild(date_element)
+        respuesta_element.appendChild(date_element)
         
         messages_element = doc.createElement('mensajes')
         
@@ -131,7 +135,94 @@ def dict_to_xml(message_types_by_date):
         messages_element.appendChild(negativos_element)
         messages_element.appendChild(neutros_element)
         
-        root.appendChild(messages_element)
+        respuesta_element.appendChild(messages_element)
+        
+        analysis_element = doc.createElement('analisis')
+        
+        for company, company_counts in company_mentions.items():
+            company_element = doc.createElement('empresa')
+            company_element.setAttribute('nombre', company)
+            
+            company_messages_element = doc.createElement('mensajes')
+            
+            total_element = doc.createElement('total')
+            total_text = doc.createTextNode(str(company_counts['total']))
+            total_element.appendChild(total_text)
+            
+            positivos_element = doc.createElement('positivos')
+            positivos_text = doc.createTextNode(str(company_counts['positivos']))
+            positivos_element.appendChild(positivos_text)
+            
+            negativos_element = doc.createElement('negativos')
+            negativos_text = doc.createTextNode(str(company_counts['negativos']))
+            negativos_element.appendChild(negativos_text)
+            
+            neutros_element = doc.createElement('neutros')
+            neutros_text = doc.createTextNode(str(company_counts['neutros']))
+            neutros_element.appendChild(neutros_text)
+            
+            company_messages_element.appendChild(total_element)
+            company_messages_element.appendChild(positivos_element)
+            company_messages_element.appendChild(negativos_element)
+            company_messages_element.appendChild(neutros_element)
+            
+            company_element.appendChild(company_messages_element)
+            
+            services_element = doc.createElement('servicios')
+            
+            for empresa in Empresas:
+                if empresa.nombre == company:
+                    for serv in empresa.servicios:
+                        service_element = doc.createElement('servicio')
+                        service_element.setAttribute('nombre', serv.nombre)
+                        
+                        service_messages_element = doc.createElement('mensajes')
+                        
+                        service_total = 0
+                        service_positives = 0
+                        service_negatives = 0
+                        service_neutros = 0
+                        
+                        for message in Mensajes:
+                            if any(alias.alias in message for alias in serv.alias):
+                                service_total += 1
+                                message_type = classify_message(message)
+                                if message_type == 'positivos':
+                                    service_positives += 1
+                                elif message_type == 'negativos':
+                                    service_negatives += 1
+                                elif message_type == 'neutros':
+                                    service_neutros += 1
+                        
+                        total_element = doc.createElement('total')
+                        total_text = doc.createTextNode(str(service_total))
+                        total_element.appendChild(total_text)
+                        
+                        positivos_element = doc.createElement('positivos')
+                        positivos_text = doc.createTextNode(str(service_positives))
+                        positivos_element.appendChild(positivos_text)
+                        
+                        negativos_element = doc.createElement('negativos')
+                        negativos_text = doc.createTextNode(str(service_negatives))
+                        negativos_element.appendChild(negativos_text)
+                        
+                        neutros_element = doc.createElement('neutros')
+                        neutros_text = doc.createTextNode(str(service_neutros))
+                        neutros_element.appendChild(neutros_text)
+                        
+                        service_messages_element.appendChild(total_element)
+                        service_messages_element.appendChild(positivos_element)
+                        service_messages_element.appendChild(negativos_element)
+                        service_messages_element.appendChild(neutros_element)
+                        
+                        service_element.appendChild(service_messages_element)
+                        services_element.appendChild(service_element)
+            
+            company_element.appendChild(services_element)
+            analysis_element.appendChild(company_element)
+        
+        respuesta_element.appendChild(analysis_element)
+        root.appendChild(respuesta_element)
     
     return doc.toprettyxml(encoding='utf-8')
 
@@ -140,16 +231,14 @@ def count_messages_by_date_endpoint():
     try:
         dates = extract_dates(Mensajes)
         message_types_by_date = count_message_types_by_date(Mensajes, dates)
-        xml_response = dict_to_xml(message_types_by_date)
+        company_mentions = count_company_mentions(Mensajes)
+        xml_response = dict_to_xml(message_types_by_date, company_mentions)
         return Response(xml_response, mimetype='application/xml')
     except Exception as e:
         print(f"Error: {e}")
         return Response("<error>Error al procesar los mensajes</error>", status=500, mimetype='application/xml')
 
-
-
 @app.route('/')
-
 def index():
     return render_template('index.html')
     
@@ -177,7 +266,7 @@ def LeerXml1():
                 for pal in palabras:
                     good = pal.firstChild.nodeValue.strip()
                     positive.append(Positivo(good))
-                    #Positivos.append(good)
+                    Positivos.append(good)
                     print(f"Positivo: {good}")
                     
             for negativo in negativos:
@@ -185,7 +274,7 @@ def LeerXml1():
                 for pal in palabras:
                     bad = pal.firstChild.nodeValue.strip()
                     negative.append(Negativo(bad))
-                    #Negativos.append(bad)
+                    Negativos.append(bad)
                     print(f"Negativo: {bad}")
             
             for emp in emprezaAnalizar:
@@ -209,6 +298,7 @@ def LeerXml1():
                         listServicios.append(Servicio(servicios, listAlias))
                     empre = Empresa(name, listServicios)
                     company.append(empre)
+                    Empresas.append(empre)
                     print(f"Empresa: {nombre}")
                     
         dictionary = Diccionario(positive, negative, company)
@@ -296,7 +386,9 @@ def Procesar():
 def Graficar():
     pass
 
-@app.route('/mostrar', methods=['GET'])
+if __name__ == '__main__':
+    app.run(debug=True, host='127.0.0.1', port=5000)
+'''@app.route('/mostrar', methods=['GET'])
 def mostrar():
     return 'hola'
  #archivo = request.files['archivo']
@@ -318,7 +410,4 @@ def LeerXml():
         return "Archivo procesado correctamente", 200
     except Exception as e:
         print(f"Error: {e}")
-        return "Error al procesar el archivo", 500
-
-if __name__ == '__main__':
-    app.run(debug=True, host='127.0.0.1', port=5000)
+        return "Error al procesar el archivo", 500'''
