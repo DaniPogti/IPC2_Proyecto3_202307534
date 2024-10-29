@@ -226,7 +226,7 @@ def diccionarioXML(mensajeByFecha, companycont):
     
     return doc.toprettyxml(encoding='utf-8')
 
-@app.route('/countMessagesByDate', methods=['GET'])
+@app.route('/EnvioXML', methods=['GET'])
 def contFechaFunc():
     try:
         dates = extraerFechas(Mensajes)
@@ -366,25 +366,18 @@ def ConsultarD():
     except Exception as e:
         return str(e)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-    
-
-@app.route('/filtrarFechas', methods=['POST'])
-def ConsultarF():
-    pass
-
-@app.route('/ConsultarRangoFechas', methods=['POST'])
-def ConsultarRF():
-    pass
-
-@app.route('/ProcesarMensaje', methods=['POST'])
-def Procesar():
-    pass
-
-@app.route('/Grafica', methods=['GET'])
-def Graficar():
-    pass
+@app.route('/Reset', methods=['POST'])
+def vaciarListas():
+    global Clasificaciones, Diccionarios, Positivos, Negativos, Empresas, Servicios, Alias, Mensajes
+    Clasificaciones.clear()
+    Diccionarios.clear()
+    Positivos.clear()
+    Negativos.clear()
+    Empresas.clear()
+    Servicios.clear()
+    Alias.clear()
+    Mensajes.clear()
+    return "Todas las listas han sido vaciadas", 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='127.0.0.1', port=5000)

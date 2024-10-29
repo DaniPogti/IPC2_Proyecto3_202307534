@@ -157,6 +157,11 @@
                       Cargar Archivo XML
                   </button>
               </form>
+
+              <form method="POST" action="{% url 'Reset' %}" class="form-spacing">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-reset">Resetear Listas</button>
+               </form>
   
               {% if ContenidoXml %}
               <div style="display: flex; gap: 10px; justify-content: space-between;">

@@ -45,7 +45,7 @@ def subirXML(request):
     return render(request, 'index.html', {'ContenidoXml': ContenidoXml, 'mensaje': mensaje})
 
 def mandarXML(request):
-    response = requests.get(api + '/countMessagesByDate')
+    response = requests.get(api + '/EnvioXML')
     
     if response.status_code == 200:
         mensaje = response.text  # Pasar el contenido del XML al mensaje
@@ -58,3 +58,15 @@ def mandarXML(request):
 
 def Ayuda(request):
     return render(request, 'ayuda.html')
+
+def Reset(request):
+    response = requests.post(api + '/Reset')
+    ContenidoXml = None
+    
+    if response.status_code == 200:
+        mensaje = 'Datos reseteados correctamente'
+    else:
+        mensaje = f"Error al resetear: {response.status_code} - {response.reason}"
+
+    
+    return render(request, 'index.html', {'ContenidoXml': ContenidoXml, 'mensaje': mensaje})

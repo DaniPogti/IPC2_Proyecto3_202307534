@@ -7,6 +7,7 @@ urlpatterns = [
     path('leerArchivoXML/', views.leerArchivoXML, name='leerArchivoXML'),
     path('mandarXML/', views.mandarXML, name='mandarXML'),
     path('Ayuda/', views.Ayuda, name='Ayuda'),
+    path('Reset/', views.Reset, name='Reset'),
 ]
 
 
