@@ -6,6 +6,7 @@ urlpatterns = [
     path('subirXML/', views.subirXML, name='subirXML'),
     path('leerArchivoXML/', views.leerArchivoXML, name='leerArchivoXML'),
     path('mandarXML/', views.mandarXML, name='mandarXML'),
+    path('Ayuda/', views.Ayuda, name='Ayuda'),
 ]
 
 

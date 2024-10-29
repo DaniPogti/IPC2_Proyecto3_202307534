@@ -50,7 +50,7 @@
             section{
                 width: 30%;  /* Cada sección ocupa el 30% del ancho */
                 padding: 10px;
-                background-color: rgb(44, 164, 162);
+                background-color: rgb(112, 165, 164);
                 border: 12px solid #0bab96;
                 text-align: center;
                 border-radius: 100px 100px 10px 10px;
@@ -88,6 +88,57 @@
           .table tbody tr {
               border-bottom: 1px solid #dee2e6; 
           }
+         
+          .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+          }
+
+      
+          .btn-upload {
+            background-color: #2837a7; /* Verde */
+          }
+
+          .btn-upload:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+
+          .btn-get-xml {
+            background-color: #00ff33; /* Azul */
+          }
+
+          .btn-get-xml:hover {
+            background-color: #009eb3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+
+          /* Efecto de sombra al hacer clic */
+          .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          /* Efecto de enfoque */
+          .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(153, 255, 0, 0.5);
+          }
+
+          /* Espaciado entre formularios */
+          .form-spacing {
+            margin-bottom: 20px;
+          }
         </style>
     </head>
     <body>
@@ -121,22 +172,20 @@
                   </textarea>
               </div>
   
-              <!-- HIDDEN -->
-              <form enctype="multipart/form-data" method="POST" action="{% url 'subirXML' %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
-                  <button type="submit" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                      Subir Archivo
-                  </button>
-              </form>
-  
-              <!-- NEW BUTTON TO GET XML -->
-              <form method="get" action="{% url 'mandarXML' %}">
-                  <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
-                  <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                      Obtener XML
-                  </button>
-              </form>
+              <form enctype="multipart/form-data" method="POST" action="{% url 'subirXML' %}" class="form-spacing">
+                {% csrf_token %}
+                <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
+                <button type="submit" class="btn btn-upload">
+                    Subir Archivo
+                </button>
+            </form>
+            
+            <form method="get" action="{% url 'mandarXML' %}" class="form-spacing">
+                <input type="hidden" name="xml" value="{{ ContenidoXml|escape }}" />
+                <button type="submit" class="btn btn-get-xml">
+                    Obtener XML
+                </button>
+            </form>
               {% else %}
               <textarea class="w-full h-96 mt-4 rounded-lg p-4" name="xml" id="xml" placeholder="Aquí se mostrará el contenido del archivo .xml"></textarea>
               {% endif %}

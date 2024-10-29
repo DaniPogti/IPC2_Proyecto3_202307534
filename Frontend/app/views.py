@@ -55,3 +55,6 @@ def mandarXML(request):
     ContenidoXml = request.GET.get('xml', '')
 
     return render(request, 'index.html', {'ContenidoXml': ContenidoXml, 'mensaje': mensaje})
+
+def Ayuda(request):
+    return render(request, 'ayuda.html')
