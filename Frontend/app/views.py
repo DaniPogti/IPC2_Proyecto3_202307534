@@ -43,3 +43,15 @@ def subirXML(request):
             mensaje = f"Error al enviar los datos. Código de estado: {response.status_code} - {response.reason}"
     
     return render(request, 'index.html', {'ContenidoXml': ContenidoXml, 'mensaje': mensaje})
+
+def mandarXML(request):
+    response = requests.get(api + '/countMessagesByDate')
+    
+    if response.status_code == 200:
+        mensaje = response.text  # Pasar el contenido del XML al mensaje
+    else:
+        mensaje = f"Error al obtener los datos. Código de estado: {response.status_code} - {response.reason}"
+    
+    ContenidoXml = request.GET.get('xml', '')
+
+    return render(request, 'index.html', {'ContenidoXml': ContenidoXml, 'mensaje': mensaje})

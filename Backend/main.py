@@ -51,60 +51,60 @@ class Alia():
     def __init__(self, alias):
         self.alias = alias
         
-def extract_dates(messages):
-    date_pattern = re.compile(r'\b\d{2}/\d{2}/\d{4}\b')
+def extraerFechas(mensajes):
+    fech = re.compile(r'\b\d{2}/\d{2}/\d{4}\b')
     dates = []
-    for message in messages:
-        match = date_pattern.search(message)
+    for msg in mensajes:
+        match = fech.search(msg)
         if match:
             dates.append(match.group())
     return dates
 
-def classify_message(message):
-    positive_count = sum(word in message for word in Positivos)
-    negative_count = sum(word in message for word in Negativos)
+def clasificarMensaje(msg):
+    positivoCont = sum(word in msg for word in Positivos)
+    negativoCont = sum(word in msg for word in Negativos)
     
-    if positive_count == negative_count:
+    if positivoCont == negativoCont:
         return 'neutros'
-    elif positive_count > negative_count:
+    elif positivoCont > negativoCont:
         return 'positivos'
     else:
         return 'negativos'
 
-def count_message_types_by_date(messages, dates):
-    message_types_by_date = {}
-    for message, date in zip(messages, dates):
-        message_type = classify_message(message)
-        if date not in message_types_by_date:
-            message_types_by_date[date] = {'total': 0, 'positivos': 0, 'negativos': 0, 'neutros': 0}
-        message_types_by_date[date]['total'] += 1
-        if message_type == 'neutros':
-            if message_types_by_date[date]['neutros'] == 0:
-                message_types_by_date[date]['neutros'] = 1
+def contadorFechMsg(mensajes, dates):
+    mensajeByFecha = {}
+    for msg, date in zip(mensajes, dates):
+        tipoMsg = clasificarMensaje(msg)
+        if date not in mensajeByFecha:
+            mensajeByFecha[date] = {'total': 0, 'positivos': 0, 'negativos': 0, 'neutros': 0}
+        mensajeByFecha[date]['total'] += 1
+        if tipoMsg == 'neutros':
+            if mensajeByFecha[date]['neutros'] == 0:
+                mensajeByFecha[date]['neutros'] = 1
         else:
-            message_types_by_date[date][message_type] += 1
-    return message_types_by_date
+            mensajeByFecha[date][tipoMsg] += 1
+    return mensajeByFecha
 
-def count_company_mentions(messages):
-    company_mentions = {company.nombre: {'total': 0, 'positivos': 0, 'negativos': 0, 'neutros': 0} for company in Empresas}
-    for message in messages:
-        message_type = classify_message(message)
+def contEmpresa(mensajes):
+    companycont = {company.nombre: {'total': 0, 'positivos': 0, 'negativos': 0, 'neutros': 0} for company in Empresas}
+    for msg in mensajes:
+        tipoMsg = clasificarMensaje(msg)
         for company in Empresas:
-            if company.nombre in message:
-                company_mentions[company.nombre]['total'] += 1
-                if message_type == 'neutros':
-                    if company_mentions[company.nombre]['neutros'] == 0:
-                        company_mentions[company.nombre]['neutros'] = 1
+            if company.nombre in msg:
+                companycont[company.nombre]['total'] += 1
+                if tipoMsg == 'neutros':
+                    if companycont[company.nombre]['neutros'] == 0:
+                        companycont[company.nombre]['neutros'] = 1
                 else:
-                    company_mentions[company.nombre][message_type] += 1
-    return company_mentions
+                    companycont[company.nombre][tipoMsg] += 1
+    return companycont
 
-def dict_to_xml(message_types_by_date, company_mentions):
+def diccionarioXML(mensajeByFecha, companycont):
     doc = Document()
     root = doc.createElement('lista_respuestas')
     doc.appendChild(root)
     
-    for date, counts in message_types_by_date.items():
+    for date, counts in mensajeByFecha.items():
         respuesta_element = doc.createElement('respuesta')
         
         date_element = doc.createElement('fecha')
@@ -139,7 +139,7 @@ def dict_to_xml(message_types_by_date, company_mentions):
         
         analysis_element = doc.createElement('analisis')
         
-        for company, company_counts in company_mentions.items():
+        for company, company_counts in companycont.items():
             company_element = doc.createElement('empresa')
             company_element.setAttribute('nombre', company)
             
@@ -183,15 +183,15 @@ def dict_to_xml(message_types_by_date, company_mentions):
                         service_negatives = 0
                         service_neutros = 0
                         
-                        for message in Mensajes:
-                            if any(alias.alias in message for alias in serv.alias):
+                        for msg in Mensajes:
+                            if any(alias.alias in msg for alias in serv.alias):
                                 service_total += 1
-                                message_type = classify_message(message)
-                                if message_type == 'positivos':
+                                tipoMsg = clasificarMensaje(msg)
+                                if tipoMsg == 'positivos':
                                     service_positives += 1
-                                elif message_type == 'negativos':
+                                elif tipoMsg == 'negativos':
                                     service_negatives += 1
-                                elif message_type == 'neutros':
+                                elif tipoMsg == 'neutros':
                                     service_neutros += 1
                         
                         total_element = doc.createElement('total')
@@ -227,12 +227,12 @@ def dict_to_xml(message_types_by_date, company_mentions):
     return doc.toprettyxml(encoding='utf-8')
 
 @app.route('/countMessagesByDate', methods=['GET'])
-def count_messages_by_date_endpoint():
+def contFechaFunc():
     try:
-        dates = extract_dates(Mensajes)
-        message_types_by_date = count_message_types_by_date(Mensajes, dates)
-        company_mentions = count_company_mentions(Mensajes)
-        xml_response = dict_to_xml(message_types_by_date, company_mentions)
+        dates = extraerFechas(Mensajes)
+        mensajeByFecha = contadorFechMsg(Mensajes, dates)
+        companycont = contEmpresa(Mensajes)
+        xml_response = diccionarioXML(mensajeByFecha, companycont)
         return Response(xml_response, mimetype='application/xml')
     except Exception as e:
         print(f"Error: {e}")
